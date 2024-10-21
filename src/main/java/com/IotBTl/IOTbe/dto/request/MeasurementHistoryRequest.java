@@ -12,7 +12,7 @@ public class MeasurementHistoryRequest {
     private LocalTime measurementTime;
 
     public float getTemperature() {
-        return temperature;
+        return temperature; 
     }
 
     public void setTemperature(float temperature) {

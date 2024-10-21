@@ -2,12 +2,13 @@ package com.IotBTl.IOTbe.Controller;
 
 import com.IotBTl.IOTbe.Service.DeviceService;
 import com.IotBTl.IOTbe.dto.request.DeviceCreationRequest;
-import com.IotBTl.IOTbe.entity.ControllDevicesHistory;
+import com.IotBTl.IOTbe.entity.ControlDevicesHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/device-history")
@@ -16,14 +17,70 @@ public class DeviceHistoryController {
     private DeviceService deviceService;
 
     @PostMapping
-    ControllDevicesHistory createDeviceHistory(@RequestBody DeviceCreationRequest request) {
+    public ControlDevicesHistory createDeviceHistory(@RequestBody DeviceCreationRequest request) {
         return deviceService.createDeviceHistory(request);
     }
+
     @GetMapping
-    public Page<ControllDevicesHistory> getDeviceHistory(
+    public Page<ControlDevicesHistory> getDeviceHistory(
             @RequestParam(defaultValue = "0") int pageNumber
     ) {
         return deviceService.getDeviceHistory(pageNumber);
     }
 
+    // Tìm kiếm theo tên thiết bị
+    @GetMapping("/search-by-name")
+    public Page<ControlDevicesHistory> findDeviceHistoryByName(
+            @RequestParam String deviceName,
+            @RequestParam(defaultValue = "0") int pageNumber
+    ) {
+        return deviceService.findDeviceHistoryByName(deviceName, pageNumber);
+    }
+
+    // Tìm kiếm theo khoảng ngày
+    @GetMapping("/search-by-date")
+    public Page<ControlDevicesHistory> findDeviceHistoryByDate(
+            @RequestParam LocalDate firstDate,
+            @RequestParam LocalDate lastDate,
+            @RequestParam(defaultValue = "0") int pageNumber
+    ) {
+        return deviceService.findDeviceHistoryByDate(firstDate, lastDate, pageNumber);
+    }
+
+    // Tìm kiếm theo tên thiết bị và khoảng ngày
+    @GetMapping("/search-by-name-date")
+    public Page<ControlDevicesHistory> findDeviceHistoryByNameAndDate(
+            @RequestParam String deviceName,
+            @RequestParam LocalDate firstDate,
+            @RequestParam LocalDate lastDate,
+            @RequestParam(defaultValue = "0") int pageNumber
+    ) {
+        return deviceService.findDeviceHistoryByNameAndDate(deviceName, firstDate, lastDate, pageNumber);
+    }
+
+    // Tìm kiếm theo khoảng ngày và khoảng thời gian
+    @GetMapping("/search-by-date-time")
+    public Page<ControlDevicesHistory> findDeviceHistoryByDateAndTime(
+            @RequestParam LocalDate firstDate,
+            @RequestParam LocalDate lastDate,
+            @RequestParam LocalTime begin,
+            @RequestParam LocalTime end,
+            @RequestParam(defaultValue = "0") int pageNumber
+    ) {
+        return deviceService.findDeviceHistoryByDateAndTime(firstDate, lastDate, begin, end, pageNumber);
+    }
+
+    // Tìm kiếm theo tất cả các điều kiện: tên thiết bị, khoảng ngày, khoảng thời gian
+    @GetMapping("/search-by-all")
+    public Page<ControlDevicesHistory> findDevicesByAll(
+            @RequestParam String deviceName,
+            @RequestParam LocalDate firstDate,
+            @RequestParam LocalDate lastDate,
+            @RequestParam LocalTime begin,
+            @RequestParam LocalTime end,
+            @RequestParam(defaultValue = "0") int pageNumber
+    ) {
+        return deviceService.findDevicesByAll(deviceName, firstDate, lastDate, begin, end, pageNumber);
+    }
 }
+

@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-public class ControllDevicesHistory {
+public class ControlDevicesHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -44,15 +44,17 @@ public class ControllDevicesHistory {
         return actionTime;
     }
 
-    public void setActionTime(LocalTime actionTime) {
-        this.actionTime = actionTime;
+    public void setActionTime() {
+        this.actionTime = LocalTime.now();
     }
 
     public LocalDate getActionDate() {
         return actionDate;
     }
 
-    public void setActionDate(LocalDate actionDate) {
-        this.actionDate = actionDate;
+    public void setActionDate() {
+        this.actionDate = LocalDate.now();
     }
 }
+
+
