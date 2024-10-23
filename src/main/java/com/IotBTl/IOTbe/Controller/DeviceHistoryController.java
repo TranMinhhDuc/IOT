@@ -28,7 +28,6 @@ public class DeviceHistoryController {
         return deviceService.getDeviceHistory(pageNumber);
     }
 
-    // Tìm kiếm theo tên thiết bị
     @GetMapping("/search-by-name")
     public Page<ControlDevicesHistory> findDeviceHistoryByName(
             @RequestParam String deviceName,

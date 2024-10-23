@@ -10,6 +10,7 @@ public class ControlDevicesHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "device_name")
     private String deviceName;
     private String action;
     private LocalTime actionTime;

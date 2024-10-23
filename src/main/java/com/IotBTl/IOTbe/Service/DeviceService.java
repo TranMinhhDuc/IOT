@@ -3,10 +3,13 @@ package com.IotBTl.IOTbe.Service;
 import com.IotBTl.IOTbe.dto.request.DeviceCreationRequest;
 import com.IotBTl.IOTbe.entity.ControlDevicesHistory;
 import com.IotBTl.IOTbe.repository.DeviceRepository;
+import com.IotBTl.IOTbe.specication.DeviceSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -33,8 +36,11 @@ public class DeviceService {
     }
 
     public Page<ControlDevicesHistory> findDeviceHistoryByName(String deviceName, int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, 10);
-        return deviceRepository.findDeviceHistoryByName(deviceName, pageable);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("actionDate"), Sort.Order.desc("actionTime")));
+        Specification<ControlDevicesHistory> spec = Specification
+                .where(DeviceSpecification.findByName(deviceName));
+        return deviceRepository.findAll(spec, pageable);
     }
 
     public Page<ControlDevicesHistory> findDeviceHistoryByDate(LocalDate firstDate, LocalDate lastDate, int pageNumber) {

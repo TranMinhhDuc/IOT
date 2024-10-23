@@ -3,6 +3,7 @@ package com.IotBTl.IOTbe.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Repository
-public interface DeviceRepository extends JpaRepository<ControlDevicesHistory, String>{
+public interface DeviceRepository extends JpaRepository<ControlDevicesHistory, String>, JpaSpecificationExecutor<ControlDevicesHistory> {
 
     @Query(value = "SELECT * FROM control_devices_history " +
             "ORDER BY action_date DESC, action_time DESC", nativeQuery = true)
@@ -26,7 +27,7 @@ public interface DeviceRepository extends JpaRepository<ControlDevicesHistory, S
 
     @Query(value = "SELECT * FROM control_devices_history " +
             "WHERE action_date >= :firstDate " +
-            "AND action_date <= :lastDate " +
+            "AND action_date <= :lastDate " + 
             "ORDER BY action_date DESC, action_time DESC", nativeQuery = true)
     Page<ControlDevicesHistory> findDeviceHistoryByDate(
             @Param("firstDate") LocalDate firstDate,
