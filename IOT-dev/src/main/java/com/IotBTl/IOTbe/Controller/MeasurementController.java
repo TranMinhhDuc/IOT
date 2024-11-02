@@ -9,18 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/measurement-history")
 public class MeasurementController {
     @Autowired
     private MeasureService measureService;
-
-    @PostMapping
-    MeasurementHistory createMeasurementHistory(@RequestBody MeasurementHistoryRequest request){
-        return measureService.CreateMeasurementHistory(request);
-    }
 
     @GetMapping
     public Page<MeasurementHistory> getMeasureHistory(

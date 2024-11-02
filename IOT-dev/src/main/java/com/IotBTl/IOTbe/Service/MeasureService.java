@@ -1,7 +1,8 @@
+
 package com.IotBTl.IOTbe.Service;
 
+import com.IotBTl.IOTbe.WebSocketHandler.MeasurementHandler;
 import com.IotBTl.IOTbe.dto.request.MeasurementHistoryRequest;
-import com.IotBTl.IOTbe.entity.ControlDevicesHistory;
 import com.IotBTl.IOTbe.entity.MeasurementHistory;
 import com.IotBTl.IOTbe.repository.MeasurementRepository;
 import com.IotBTl.IOTbe.specication.MeasurementSpecification;
@@ -15,21 +16,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class MeasureService {
     @Autowired
     private MeasurementRepository measurementRepository;
-
-    public MeasurementHistory CreateMeasurementHistory(MeasurementHistoryRequest measure) {
-        MeasurementHistory measureCreation = new MeasurementHistory();
-        measureCreation.setTemperature(measure.getTemperature());
-        measureCreation.setHumidity(measure.getHumidity());
-        measureCreation.setBright(measure.getBright());
-
-        return measurementRepository.save(measureCreation);
-    }
 
     public Page<MeasurementHistory> getMeasureHistory(int pageNumber) {
         Pageable pageable = PageRequest.of(pageNumber, 10,
@@ -42,7 +35,8 @@ public class MeasureService {
 
         Specification<MeasurementHistory> spec = Specification
                 .where(MeasurementSpecification.findByDate(startDate, endDate));
-        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("measurementDate"), Sort.Order.desc("measurementTime")));
         return measurementRepository.findAll(spec, pageable);
     }
 
@@ -53,7 +47,8 @@ public class MeasureService {
         Specification<MeasurementHistory> spec = Specification
                 .where(MeasurementSpecification.findByDate(startDate,endDate))
                 .and(MeasurementSpecification.findByTime(begin, end));
-        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("measurementDate"), Sort.Order.desc("measurementTime")));
         return measurementRepository.findAll(spec, pageable);
     }
 }

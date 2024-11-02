@@ -43,11 +43,19 @@ public class MeasurementHistoryRequest {
         this.measurementDate = measurementDate;
     }
 
+    public void setMeasurementDate() {
+        this.measurementDate = LocalDate.now();
+    }
+
     public LocalTime getMeasurementTime() {
         return measurementTime;
     }
 
     public void setMeasurementTime(LocalTime measurementTime) {
         this.measurementTime = measurementTime;
+    }
+
+    public void setMeasurementTime() {
+        this.measurementTime = LocalTime.now();
     }
 }

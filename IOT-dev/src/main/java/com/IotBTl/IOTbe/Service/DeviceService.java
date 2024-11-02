@@ -1,5 +1,6 @@
 package com.IotBTl.IOTbe.Service;
 
+import com.IotBTl.IOTbe.WebSocketHandler.DevicesHandler;
 import com.IotBTl.IOTbe.dto.request.DeviceCreationRequest;
 import com.IotBTl.IOTbe.entity.ControlDevicesHistory;
 import com.IotBTl.IOTbe.repository.DeviceRepository;
@@ -20,18 +21,9 @@ public class DeviceService {
     @Autowired
     private DeviceRepository deviceRepository;
 
-    public ControlDevicesHistory createDeviceHistory(DeviceCreationRequest actDeviceRequest) {
-        ControlDevicesHistory newControlDevice = new ControlDevicesHistory();
-        newControlDevice.setDeviceName(actDeviceRequest.getDeviceName());
-        newControlDevice.setAction(actDeviceRequest.getAction());
-        newControlDevice.setActionDate();
-        newControlDevice.setActionTime();
-
-        return deviceRepository.save(newControlDevice);
-    }
-
     public Page<ControlDevicesHistory> getDeviceHistory(int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("actionDate"), Sort.Order.desc("actionTime")));
         return deviceRepository.findAll(pageable);
     }
 
@@ -44,7 +36,8 @@ public class DeviceService {
     }
 
     public Page<ControlDevicesHistory> findDeviceHistory(LocalDate firstDate, LocalDate lastDate, int pageNumber) {
-        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("actionDate"), Sort.Order.desc("actionTime")));
         Specification<ControlDevicesHistory> spec = Specification
                 .where((DeviceSpecification.findByDate(firstDate, lastDate)));
         return deviceRepository.findAll(spec, pageable);
@@ -56,7 +49,8 @@ public class DeviceService {
         Specification<ControlDevicesHistory> spec = Specification
                 .where(DeviceSpecification.findByName(deviceName))
                 .and(DeviceSpecification.findByDate(firstDate, lastDate));
-        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("actionDate"), Sort.Order.desc("actionTime")));
         return deviceRepository.findAll(spec, pageable);
     }
 
@@ -66,7 +60,8 @@ public class DeviceService {
         Specification<ControlDevicesHistory> spec = Specification
                 .where(DeviceSpecification.findByDate(firstDate, lastDate))
                 .and(DeviceSpecification.findByTime(begin, end));
-        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("actionDate"), Sort.Order.desc("actionTime")));
         return deviceRepository.findAll(spec, pageable);
     }
 
@@ -78,7 +73,8 @@ public class DeviceService {
                 .where(DeviceSpecification.findByName(deviceName))
                 .and(DeviceSpecification.findByDate(firstDate, lastDate))
                 .and(DeviceSpecification.findByTime(begin, end));
-        Pageable pageable = PageRequest.of(pageNumber, 10);
+        Pageable pageable = PageRequest.of(pageNumber, 10,
+                Sort.by(Sort.Order.desc("actionDate"), Sort.Order.desc("actionTime")));
         return deviceRepository.findAll(spec, pageable);
     }
 }

@@ -16,11 +16,6 @@ public class DeviceHistoryController {
     @Autowired
     private DeviceService deviceService;
 
-    @PostMapping
-    public ControlDevicesHistory createDeviceHistory(@RequestBody DeviceCreationRequest request) {
-        return deviceService.createDeviceHistory(request);
-    }
-
     @GetMapping
     public Page<ControlDevicesHistory> getDeviceHistory(
             @RequestParam(defaultValue = "0") int pageNumber
@@ -82,4 +77,3 @@ public class DeviceHistoryController {
         return deviceService.findDevicesHistory(deviceName, firstDate, lastDate, begin, end, pageNumber);
     }
 }
-

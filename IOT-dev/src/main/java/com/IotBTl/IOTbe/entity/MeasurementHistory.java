@@ -24,10 +24,6 @@ public class MeasurementHistory {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public float getTemperature() {
         return temperature;
     }
@@ -67,4 +63,14 @@ public class MeasurementHistory {
     public void setMeasurementTime() {
         this.measurementTime = LocalTime.now();
     }
+
+    public String toJson() {
+        return "{" +
+                "\"temperature\":" + temperature + "," +
+                "\"humidity\":" + humidity + "," +
+                "\"bright\":" + bright +
+                "}";
+    }
+
+
 }

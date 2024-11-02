@@ -1,17 +1,33 @@
 package com.IotBTl.IOTbe.config;
 
+import com.IotBTl.IOTbe.Service.DashboardService;
+import com.IotBTl.IOTbe.Service.DeviceService;
+import com.IotBTl.IOTbe.Service.MeasureService;
+import com.IotBTl.IOTbe.dto.request.MeasurementHistoryRequest;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class MqttConfig {
 
-    private String broker = "tcp://192.168.1.10:1885";
+    @Autowired
+    MeasureService measureService;
+    @Autowired
+    DashboardService dashboardService;
+
+    private String broker = "tcp://10.21.24.118:1885";
     private String clientId = "web";
-    private IMqttClient client;
+    public static IMqttClient client;
+
+    private static final String subTopic = "sensor/esp32";
+    private static final String pubTopic = "control/esp32";
 
     public MqttConfig() {
         try {
@@ -31,13 +47,41 @@ public class MqttConfig {
         }
     }
 
-    public void subscribeToTopic(String topic) throws MqttException {
-        client.subscribe(topic, new IMqttMessageListener() {
+    @Bean
+    public IMqttClient subscribeToTopic() throws MqttException {
+
+        MeasurementHistoryRequest newMeasurementHistory = new MeasurementHistoryRequest();
+        client.subscribe(subTopic, new IMqttMessageListener() {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                System.out.println(new String(message.getPayload()));
+                String[] payload = new String(message.getPayload()).split(",");
+                if (payload.length > 1) {
+                    newMeasurementHistory.setTemperature(Float.parseFloat(payload[0].trim()));
+                    newMeasurementHistory.setHumidity(Float.parseFloat(payload[1].trim()));
+                    newMeasurementHistory.setBright(Float.parseFloat(payload[2].trim()));
+                    newMeasurementHistory.setMeasurementDate();
+                    newMeasurementHistory.setMeasurementTime();
+                    dashboardService.createMeasurementHistory(newMeasurementHistory);
+                } else {
+                    dashboardService.createDeviceHistory(payload[0].trim());
+                }
             }
         });
+        return client;
     }
-}
 
+    public static void publishMessage(String payload) {
+        try {
+            MqttMessage message = new MqttMessage();
+            message.setPayload(payload.getBytes());
+
+            client.publish(pubTopic, message);
+
+            System.out.println("Message published to topic: " + pubTopic);
+        } catch (MqttException e) {
+            System.out.println("Error during message publish");
+            e.printStackTrace();
+        }
+    }
+
+}
