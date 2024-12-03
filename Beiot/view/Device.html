@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Information</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: center;
+        }
+        .pagination {
+            justify-content: center;
+        }
+        #dateSearch .row {
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="my-4 text-center">Device Information</h2>
+        
+        <!-- Search Section -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <select id="searchBy" class="form-select">
+                    <option value="deviceName">Search by Device Name</option>
+                    <option value="date">Search by Action Date</option>
+                </select>
+            </div>
+            <div class="col-md-6" id="deviceNameSearch">
+                <input type="text" id="searchInput" class="form-control" placeholder="Enter device name...">
+            </div>
+            <div class="col-md-6 d-none" id="dateSearch">
+                <div class="row">
+                    <div class="col">
+                        <input type="date" id="startDate" class="form-control" placeholder="Start Date">
+                    </div>
+                    <div class="col">
+                        <input type="date" id="endDate" class="form-control" placeholder="End Date">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button id="searchBtn" class="btn btn-primary w-100">Search</button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <table class="table table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Device Name</th>
+                    <th>Action</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody id="deviceTableBody">
+                <!-- Data will be injected here -->
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination">
+                <li class="page-item">
+                    <button class="page-link" id="previousBtn" disabled>Previous</button>
+                </li>
+                <li class="page-item">
+                    <button class="page-link" id="nextBtn">Next</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Script -->
+    <script>
+        let currentPage = 0; // Current page number
+        const pageSize = 10; // Number of items per page
+        let searchBy = ""; // Search field (e.g., deviceName or date)
+        let searchValue = ""; // Value to search for
+
+        // Function to fetch data
+        function fetchData(page = 0, searchBy = "", searchValue = "") {
+            const url = new URL("http://localhost:8080/device/device-page");
+            url.searchParams.append("page", page);
+            url.searchParams.append("pageSize", pageSize);
+            if (searchBy) url.searchParams.append("searchBy", searchBy);
+            if (searchValue) url.searchParams.append("searchValue", searchValue);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const devices = data.content;
+                    displayData(devices);
+                    updatePagination(data.pageable.pageNumber, data.totalPages);
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        // Function to display data in the table
+        function displayData(devices) {
+            const tableBody = document.getElementById("deviceTableBody");
+            tableBody.innerHTML = "";
+
+            devices.forEach((device, index) => {
+                const row = `
+                    <tr>
+                        <td>${device.id}</td>
+                        <td>${device.deviceName}</td>
+                        <td>${device.action}</td>
+                        <td>${device.actionDate}</td>
+                        <td>${device.actionTime}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Function to update pagination buttons
+        function updatePagination(current, total) {
+            currentPage = current;
+            document.getElementById("previousBtn").disabled = currentPage === 0;
+            document.getElementById("nextBtn").disabled = currentPage >= total - 1;
+        }
+
+        // Event listener for the Previous button
+        document.getElementById("previousBtn").addEventListener("click", () => {
+            if (currentPage > 0) {
+                fetchData(currentPage - 1, searchBy, searchValue);
+            }
+        });
+
+        // Event listener for the Next button
+        document.getElementById("nextBtn").addEventListener("click", () => {
+            fetchData(currentPage + 1, searchBy, searchValue);
+        });
+
+        // Event listener for Search By dropdown
+        document.getElementById("searchBy").addEventListener("change", (event) => {
+            const searchBy = event.target.value;
+            const deviceNameSearch = document.getElementById("deviceNameSearch");
+            const dateSearch = document.getElementById("dateSearch");
+
+            if (searchBy === "deviceName") {
+                deviceNameSearch.classList.remove("d-none");
+                dateSearch.classList.add("d-none");
+            } else if (searchBy === "date") {
+                deviceNameSearch.classList.add("d-none");
+                dateSearch.classList.remove("d-none");
+            }
+        });
+
+        // Event listener for the Search button
+        document.getElementById("searchBtn").addEventListener("click", () => {
+            const searchBy = document.getElementById("searchBy").value;
+            if (searchBy === "deviceName") {
+                searchValue = document.getElementById("searchInput").value.trim();
+            } else if (searchBy === "date") {
+                const startDate = document.getElementById("startDate").value;
+                const endDate = document.getElementById("endDate").value;
+                searchValue = JSON.stringify({ startDate, endDate });
+            }
+            fetchData(0, searchBy, searchValue); // Always start at page 0 when searching
+        });
+
+        // Initial fetch
+        fetchData();
+    </script>
+</body>
+</html>
